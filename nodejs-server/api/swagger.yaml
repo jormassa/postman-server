@@ -1,0 +1,96 @@
+---
+swagger: "2.0"
+info:
+  description: "This is simple server that executes Postman collections with newman"
+  version: "1.0.0"
+  title: "Postman server"
+  contact:
+    email: "jorge.mascarell@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/v1"
+tags:
+- name: "postman"
+  description: "A postman collection"
+  externalDocs:
+    description: "Find out more"
+    url: "http://postman.com"
+schemes:
+- "http"
+paths:
+  /postman/collection/execute:
+    post:
+      tags:
+      - "postman"
+      summary: "Executes the postman collection"
+      description: ""
+      operationId: "executeCollection"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Postman object"
+        required: false
+        schema:
+          $ref: "#/definitions/collectionExecutionRequest"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/collectionExecuteResponse"
+        "405":
+          description: "Invalid input"
+        "409":
+          description: "Operation executed with errors"
+          schema:
+            $ref: "#/definitions/collectionExecuteResponse"
+      x-swagger-router-controller: "Postman"
+definitions:
+  collectionExecutionRequest:
+    type: "object"
+    required:
+    - "collection"
+    properties:
+      collection:
+        type: "string"
+        format: "byte"
+        description: "Collection file encoded in base64"
+        pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+      environment:
+        type: "string"
+        format: "byte"
+        description: "Environment file encoded in base64"
+        pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+      globals:
+        type: "string"
+        format: "byte"
+        description: "Globals file encoded in base64"
+        pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+  collectionExecuteResponse:
+    type: "object"
+    properties:
+      result:
+        type: "string"
+        description: "Returns the result of the overall execution"
+        enum:
+        - "OK"
+        - "KO"
+      execution-summary:
+        type: "object"
+        description: "Requests and tests execution summary"
+        properties: {}
+      execution-details:
+        type: "object"
+        description: "Full newman execution response"
+        properties: {}
+    example:
+      result: "OK"
+      execution-summary: "{}"
+      execution-details: "{}"
+externalDocs:
+  description: "Newman node library"
+  url: "https://www.npmjs.com/package/newman"
